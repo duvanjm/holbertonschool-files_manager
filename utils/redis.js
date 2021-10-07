@@ -1,3 +1,5 @@
+import { promisify } from 'util';
+
 const redis = require('redis');
 
 class RedisClient {
@@ -11,7 +13,8 @@ class RedisClient {
   }
 
   async get(key) {
-    const val = await this.client.get(key);
+    const getval = await promisify(this.client.get).bind(this.client);
+    const val = await getval(key);
     return val;
   }
 
