@@ -1,8 +1,8 @@
-const redis = require('redis');
+const redisAsync = require('async-redis');
 
 class RedisClient {
   constructor() {
-    this.client = redis.createClient();
+    this.client = redisAsync.createClient();
     this.client.on('error', (error) => console.log(error.message));
   }
 
