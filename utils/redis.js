@@ -1,10 +1,12 @@
+
 import { promisify } from 'util';
 
 const redis = require('redis');
 
+
 class RedisClient {
   constructor() {
-    this.client = redis.createClient();
+    this.client = redisAsync.createClient();
     this.client.on('error', (error) => console.log(error.message));
   }
 

@@ -7,6 +7,7 @@ class DBClient {
     this.database = process.env.DB_DATABASE || 'files_manager';
         this.client = new MongoClient(`mongodb://${this.host}:${this.port}`, { useUnifiedTopology: true });
     this.client.connect();
+
   }
 
   isAlive() {
@@ -32,4 +33,3 @@ class DBClient {
 
 const dbClient = new DBClient();
 module.exports = dbClient;
-
