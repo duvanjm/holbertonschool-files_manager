@@ -1,23 +1,22 @@
-const express = require('express');
-const DBClient = require('../utils/db');
+const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
-const RedisClient = require('../utils/redis');
-
-const AppController = express.Router();
-
-AppController.getStatus('/status', (req, res) => {
-  if (RedisClient.isAlive() && DBClient.isAlive()) {
-    res.res('{ "redis": true, "db": true }', 200);
+class AppController {
+  static getStatus(req, res) {
+    if (redisClient.isAlive() && dbClient.isAlive()) {
+      res.status(200).json({ redis: true, db: true }, 200);
+    }
   }
-});
 
-const nusers = async () => { await DBClient.nbUsers(); };
-const nfiles = async () => { await DBClient.nbFiles(); };
+  static async getStats(req, res) {
+    const users = await dbClient.nbUsers();
+    const files = await dbClient.nbFiles();
+    const obj = {
+      users,
+      files,
+    };
+    res.status(200).json(obj);
+  }
+}
 
-AppController.getStats('/stats', (req, res) => {
-  const obj = {
-    users: nusers,
-    files: nfiles,
-  };
-  res.send(obj, 200);
-});
+module.exports = AppController;
