@@ -15,11 +15,11 @@ class UsersController {
     const { password } = req.body;
     const search = await dbClient.db.collection('users').find({ email }).toArray();
     if (!email) {
-      res.status(400).json({ error: 'Missing email ' });
+      res.status(400).json({ error: 'Missing email' });
     } if (!password) {
-      res.status(400).json({ error: 'Missing password ' });
+      res.status(400).json({ error: 'Missing password' });
     } if (search.length > 0) {
-      res.status(400).json({ error: 'Already exist ' });
+      res.status(400).json({ error: 'Already exist' });
     }
     const hashpwd = hashPasswd(password);
     const addUser = await dbClient.db.collection('users').insertOne({ email, password: hashpwd });
