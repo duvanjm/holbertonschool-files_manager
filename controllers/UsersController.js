@@ -1,5 +1,8 @@
+import { ObjectId } from 'mongodb';
+
 const crypto = require('crypto');
 const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
 function hashPasswd(password) {
   const hash = crypto.createHash('sha1');
@@ -25,6 +28,16 @@ class UsersController {
     const addUser = await dbClient.db.collection('users').insertOne({ email, password: hashpwd });
     const newUser = { id: addUser.ops[0]._id, email: addUser.ops[0].email };
     return (res.status(201).json(newUser));
+  }
+
+  static async getMe(req, res) {
+    const key = req.header('X-Token').toString();
+    const session = await redisClient.get(`auth_${key}`);
+    if (session) {
+      const search = await dbClient.db.collection('users').find({ _id: ObjectId(session) }).toArray();
+      return (res.status(200).json({ id: search[0]._id, email: search[0].email }));
+    }
+    return (res.status(401).json({ error: 'Unauthorized' }));
   }
 }
 

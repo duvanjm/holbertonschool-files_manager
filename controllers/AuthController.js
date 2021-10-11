@@ -14,9 +14,9 @@ function hashPasswd(password) {
 
 class AuthController {
   static async getConnect(req, res) {
-    const user = req.header('Authorization').toString();  
+    const user = req.header('Authorization').toString();
     const data = user.substring(6).toString();
-    const buff = new Buffer.from(data, 'base64').toString();
+    const buff = Buffer.from(data, 'base64').toString();
     const credentials = buff.split(':');
     const email = credentials[0].toString('utf-8');
     const psswd = credentials[1].toString('utf-8');
@@ -29,9 +29,17 @@ class AuthController {
     }
     const key = uuidv4();
     const token = `auth_${key}`;
-    console.log(search);
-    await redisClient.set(key, search._id, 86400);
-    return res.status(200).json({ 'token': key });
+    await redisClient.set(token, search[0]._id.toString(), 86400);
+    return res.status(200).json({ token: key });
+  }
+
+  static async getDisconnect(req, res) {
+    const key = req.header('X-Token').toString();
+    if (await redisClient.get(`auth_${key}`)) {
+      await redisClient.del(`auth_${key}`);
+      return res.status(204).json({});
+    }
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 }
 
