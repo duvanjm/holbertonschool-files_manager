@@ -15,9 +15,17 @@ function hashPasswd(password) {
 class AuthController {
   static async getConnect(req, res) {
     const user = req.header('Authorization');
+    if (!user || user.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const data = user.substring(6);
     const buff = Buffer.from(data, 'base64').toString('utf-8');
     const credentials = buff.split(':');
+    if (!credentials || credentials.length === 1) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const email = credentials[0].toString('utf-8');
     const psswd = credentials[1].toString('utf-8');
     const hashpwd = hashPasswd(psswd);
@@ -35,7 +43,11 @@ class AuthController {
   }
 
   static async getDisconnect(req, res) {
-    const key = req.header('X-Token').toString();
+    const key = req.header('X-Token');
+    if (!key || key.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     if (await redisClient.get(`auth_${key}`)) {
       await redisClient.del(`auth_${key}`);
       return res.status(204).end();

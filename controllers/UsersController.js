@@ -31,8 +31,11 @@ class UsersController {
   }
 
   static async getMe(req, res) {
-    const key = req.header('X-Token').toString();
+    const key = req.header('X-Token');
     const session = await redisClient.get(`auth_${key}`);
+    if (!key || key.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     if (session) {
       const search = await dbClient.db.collection('users').find({ _id: ObjectId(session) }).toArray();
       return (res.status(200).json({ id: search[0]._id, email: search[0].email }));
