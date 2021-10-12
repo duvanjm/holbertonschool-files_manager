@@ -14,15 +14,16 @@ function hashPasswd(password) {
 
 class AuthController {
   static async getConnect(req, res) {
-    const user = req.header('Authorization').toString();
-    const data = user.substring(6).toString();
-    const buff = Buffer.from(data, 'base64').toString();
+    const user = req.header('Authorization');
+    const data = user.substring(6);
+    const buff = Buffer.from(data, 'base64').toString('utf-8');
     const credentials = buff.split(':');
     const email = credentials[0].toString('utf-8');
     const psswd = credentials[1].toString('utf-8');
     const hashpwd = hashPasswd(psswd);
-    const search = await dbClient.db.collection('users').find({ email }).toArray();
-    if (search.length < 0) {
+    const search = await dbClient.db.collection('users').find({ email, password: hashpwd }).toArray();
+
+    if (search.length < 1) {
       return res.status(401).json({ error: 'Unauthorized' });
     } if (hashpwd !== search[0].password) {
       return res.status(401).json({ error: 'Unauthorized' });
