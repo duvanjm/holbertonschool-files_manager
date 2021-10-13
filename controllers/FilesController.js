@@ -44,8 +44,8 @@ class FilesController {
         const folder = await dbClient.db.collection('files').insertOne({
           name,
           type,
-          userId,
-          parentId,
+          userId: ObjectId(userId),
+          parentId: parentId !== 0 ? ObjectId(parentId) : 0,
           isPublic: isPublic || false,
         });
         return res.status(201).json({
@@ -74,11 +74,11 @@ class FilesController {
       const file = await dbClient.db.collection('files').insertOne({
         name,
         type,
-        userId,
-        parentId: parentId || '0',
+        userId: ObjectId(userId),
+        parentId: parentId !== 0 ? ObjectId(parentId) : 0,
         isPublic: isPublic || false,
         data,
-        localPath: path,
+        localPath: `${path}/${newFile}`,
       });
 
       return res.status(201).json({
