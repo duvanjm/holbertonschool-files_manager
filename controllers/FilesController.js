@@ -124,21 +124,17 @@ class FilesController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     if (session) {
-      let { page } = req.query;
       let { parentId } = req.query;
-      if (!parentId || page) {
-        parentId = '0';
-	page = 0;
-      }
+      if (!parentId) { parentId = '0'; }
       if (parentId === '0') {
         const search = await dbClient.db.collection('files').find({ parentId: parseInt(parentId, 10) }).toArray();
 	if (search) {
-          return res.status(200).send(search[pages * 20:]);
+          return res.status(200).send(search);
 	}
       } else if (parentId !== 0) {
           const search = await dbClient.db.collection('files').find({ parentId: ObjectId(parentId) }).toArray();
           if (search) {
-            return res.status(200).send(search[page * 20]);
+            return res.status(200).send(search);
           }
       }
     }
