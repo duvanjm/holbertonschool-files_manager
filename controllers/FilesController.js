@@ -78,7 +78,7 @@ class FilesController {
         parentId: parentId || '0',
         isPublic: isPublic || false,
         data,
-        localfile: path,
+        localPath: path,
       });
 
       return res.status(201).json({
