@@ -92,6 +92,49 @@ class FilesController {
     }
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  static async getShow(req, res) {
+    const key = req.header('X-Token');
+    if (!key) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const session = await redisClient.get(`auth_${key}`);
+    const { id } = req.params;
+    if (!key || key.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (session) {
+      const search = await dbClient.db.collection('files').find({ _id: ObjectId(id) }).toArray();
+      if (!search || search.length < 1 ) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      return (res.json({
+        id: search[0]._id,
+	userId: search[0].userId,
+	name: search[0].name,
+	type: search[0].type,
+	isPublic: search[0].isPublic,
+	parentId: search[0].parentId,
+      }));
+    }
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  static async getIndex(req, res) {
+    const key = req.header('X-Token');
+    if (!key) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const session = await redisClient.get(`auth_${key}`);
+    const { id } = req.query;
+    console.log(id);
+    if (!key || key.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (session) {
+      console.log(id);
+    return res.status(401).json({ error: 'Unauthorized' });	  
+  }
 }
 
 module.exports = FilesController;
