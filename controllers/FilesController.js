@@ -95,26 +95,23 @@ class FilesController {
 
   static async getShow(req, res) {
     const key = req.header('X-Token');
-    if (!key) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
     const session = await redisClient.get(`auth_${key}`);
-    const { id } = req.params;
     if (!key || key.length === 0) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     if (session) {
+      const { id } = req.params;
       const search = await dbClient.db.collection('files').find({ _id: ObjectId(id) }).toArray();
-      if (!search || search.length < 1 ) {
+      if (!search || search.length < 1) {
         return res.status(404).json({ error: 'Not found' });
       }
       return (res.json({
         id: search[0]._id,
-	userId: search[0].userId,
-	name: search[0].name,
-	type: search[0].type,
-	isPublic: search[0].isPublic,
-	parentId: search[0].parentId,
+        userId: search[0].userId,
+        name: search[0].name,
+        type: search[0].type,
+        isPublic: search[0].isPublic,
+        parentId: search[0].parentId,
       }));
     }
     return res.status(401).json({ error: 'Unauthorized' });
@@ -122,18 +119,26 @@ class FilesController {
 
   static async getIndex(req, res) {
     const key = req.header('X-Token');
-    if (!key) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
     const session = await redisClient.get(`auth_${key}`);
-    const { id } = req.query;
-    console.log(id);
     if (!key || key.length === 0) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     if (session) {
-      console.log(id);
-    return res.status(401).json({ error: 'Unauthorized' });	  
+      let { parentId } = req.query;
+      if (!parentId) { parentId = '0'; }
+      if (parentId === '0') {
+        const search = await dbClient.db.collection('files').find({ parentId: parseInt(parentId, 10) }).toArray();
+        if (search) {
+          return res.status(200).send(search);
+        }
+      } else if (parentId !== 0) {
+        const search = await dbClient.db.collection('files').find({ parentId: ObjectId(parentId) }).toArray();
+        if (search) {
+          return res.status(200).send(search);
+        }
+      }
+    }
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 }
 
