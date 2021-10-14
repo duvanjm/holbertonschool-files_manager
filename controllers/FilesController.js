@@ -237,7 +237,7 @@ class FilesController {
       const key = req.header('X-Token');
       const session = await redisClient.get(`auth_${key}`);
       if (!key || key.length === 0) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(404).json({ error: 'Not found' });
       }
       if (session) {
         let search1 = [];
@@ -262,7 +262,7 @@ class FilesController {
           return (res.status(404).json({ error: 'Not found' }));
         }
       }
-      return res.status(401).json({ error: 'Not auth' });
+      return res.status(404).json({ error: 'Not found' });
     }
 
     const search2 = await dbClient.db.collection('files').find({ _id: ObjectId(id) }).toArray();
@@ -281,7 +281,7 @@ class FilesController {
       return res.send(data);
     });
 
-    return undefined;
+    return res.status(404).json({error: 'Not found'});
   }
 }
 
