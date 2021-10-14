@@ -239,7 +239,6 @@ class FilesController {
       if (!key || key.length === 0) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
-      console.log(session);
       if (session) {
         let search1 = [];
         try {
@@ -247,7 +246,6 @@ class FilesController {
         } catch (e) {
           return (res.status(404).json({ error: 'Not found' }));
         }
-        console.log(search1);
         if (!search1 || search1.length < 1) {
           return (res.status(404).json({ error: 'Not found' }));
         }
@@ -255,23 +253,16 @@ class FilesController {
           return res.status(404).json({ error: 'Not found' });
         }
 
+        const type = mime.contentType(search1[0].name);
+        const charset = type.split('=')[1];
         try {
-          const type = mime.contentType(search1[0].name);
-          const charset = type.split('=')[1];
-          fs.readFile(search1[0].localPath, charset, (err, data) => {
-            if (err) {
-              return (res.status(404).json({ error: 'Not found' }));
-            }
-            console.log(data);
-            res.setHeader('content-Type', type);
-            res.send(data);
-            return res.end();
-          });
+          const data = fs.readFileSync(search1[0].localPath, charset);
+          return res.send(data);
         } catch (e) {
           return (res.status(404).json({ error: 'Not found' }));
         }
       }
-      // return res.status(401).json({ error: 'Not auth' });
+      return res.status(401).json({ error: 'Not auth' });
     }
 
     const search2 = await dbClient.db.collection('files').find({ _id: ObjectId(id) }).toArray();
