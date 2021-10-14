@@ -140,6 +140,80 @@ class FilesController {
     }
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  static async putPublish(req, res) {
+    const key = req.header('X-Token');
+    const session = await redisClient.get(`auth_${key}`);
+    if (!key || key.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (session) {
+      const { id } = req.params;
+      if (!id || id === '') {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      let search = [];
+      try {
+        search = await dbClient.db.collection('files').find({ _id: ObjectId(id), userId: ObjectId(session) }).toArray();
+      } catch (e) {
+        return (res.status(404).json({ error: 'Not found' }));
+      }
+      if (!search || search.length < 1) {
+        return (res.status(404).json({ error: 'Not found' }));
+      }
+      await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
+      const search1 = await dbClient.db.collection('files').find({ _id: ObjectId(id), userId: ObjectId(session) }).toArray();
+      if (!search1 || search1.length < 1) {
+        return (res.status(404).json({ error: 'Not found' }));
+      }
+      return res.status(200).json({
+        id: search1[0]._id,
+        userId: search1[0].userId,
+        name: search1[0].name,
+        type: search1[0].type,
+        isPublic: search1[0].isPublic,
+        parentId: search1[0].parentId,
+      });
+    }
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  static async putUnpublish(req, res) {
+    const key = req.header('X-Token');
+    const session = await redisClient.get(`auth_${key}`);
+    if (!key || key.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (session) {
+      const { id } = req.params;
+      if (!id || id === '') {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      let search = [];
+      try {
+        search = await dbClient.db.collection('files').find({ _id: ObjectId(id), userId: ObjectId(session) }).toArray();
+      } catch (e) {
+        return (res.status(404).json({ error: 'Not found' }));
+      }
+      if (!search || search.length < 1) {
+        return (res.status(404).json({ error: 'Not found' }));
+      }
+      await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: false } });
+      const search1 = await dbClient.db.collection('files').find({ _id: ObjectId(id), userId: ObjectId(session) }).toArray();
+      if (!search1 || search1.length < 1) {
+        return (res.status(404).json({ error: 'Not found' }));
+      }
+      return res.status(200).json({
+        id: search1[0]._id,
+        userId: search1[0].userId,
+        name: search1[0].name,
+        type: search1[0].type,
+        isPublic: search1[0].isPublic,
+        parentId: search1[0].parentId,
+      });
+    }
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 }
 
 module.exports = FilesController;
