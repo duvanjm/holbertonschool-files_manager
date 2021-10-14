@@ -102,16 +102,16 @@ class FilesController {
     if (session) {
       const { id } = req.params;
       const search = await dbClient.db.collection('files').find({ _id: ObjectId(id) }).toArray();
-      if (!search || search.length < 1 ) {
+      if (!search || search.length < 1) {
         return res.status(404).json({ error: 'Not found' });
       }
       return (res.json({
         id: search[0]._id,
-	userId: search[0].userId,
-	name: search[0].name,
-	type: search[0].type,
-	isPublic: search[0].isPublic,
-	parentId: search[0].parentId,
+        userId: search[0].userId,
+        name: search[0].name,
+        type: search[0].type,
+        isPublic: search[0].isPublic,
+        parentId: search[0].parentId,
       }));
     }
     return res.status(401).json({ error: 'Unauthorized' });
@@ -128,17 +128,17 @@ class FilesController {
       if (!parentId) { parentId = '0'; }
       if (parentId === '0') {
         const search = await dbClient.db.collection('files').find({ parentId: parseInt(parentId, 10) }).toArray();
-	if (search) {
+        if (search) {
           return res.status(200).send(search);
-	}
+        }
       } else if (parentId !== 0) {
-          const search = await dbClient.db.collection('files').find({ parentId: ObjectId(parentId) }).toArray();
-          if (search) {
-            return res.status(200).send(search);
-          }
+        const search = await dbClient.db.collection('files').find({ parentId: ObjectId(parentId) }).toArray();
+        if (search) {
+          return res.status(200).send(search);
+        }
       }
     }
-    return res.status(401).json({ error: 'Unauthorized' });	  
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 }
 
