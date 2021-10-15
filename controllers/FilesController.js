@@ -274,14 +274,13 @@ class FilesController {
     }
     const type = mime.contentType(search2[0].name);
     const charset = type.split('=')[1];
-    fs.readFile(search2[0].localPath, charset, (err, data) => {
-      if (err) {
-        return (res.status(404).json({ error: 'Not found' }));
-      }
+    try {
+      const data = fs.readFileSync(search2[0].localPath, charset);
       return res.send(data);
-    });
-
-    return res.status(404).json({error: 'Not found'});
+    } catch (e) {
+      return (res.status(404).json({ error: 'Not found' }));
+    }
+    return res.status(404).json({ error: 'Not found' });
   }
 }
 
