@@ -31,7 +31,7 @@ Server running on port 5000
 ...
 ```
 
-reate user:
+Create user:
 ```
 $ curl 0.0.0.0:5000/users -XPOST -H "Content-Type: application/json" -d '{ "email": "bob@dylan.com", "password": "toto1234!" }' ; echo ""
 {"id":"5f1e7d35c7ba06511e683b21","email":"bob@dylan.com"}
